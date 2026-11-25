@@ -46,30 +46,6 @@
   initWA();
   const yr = $('#year'); if (yr) yr.textContent = new Date().getFullYear();
 
-  /* ---------- Cargador ---------- */
-  (function loader() {
-    const L = $('#loader'); if (!L) return;
-    const ring = $('#ldRing'), pct = $('#ldPct');
-    const t0 = performance.now(); let closed = false;
-    function tick(now) {
-      if (closed) return;
-      const k = clamp((now - t0) / 1800, 0, 1), e = ease(k);
-      if (ring) ring.setAttribute('stroke-dasharray', (e * 82).toFixed(2) + ' 100');
-      if (pct) pct.textContent = Math.round(e * 100);
-      if (k < 1) requestAnimationFrame(tick);
-    }
-    requestAnimationFrame(tick);
-    function close() {
-      if (closed) return; closed = true;
-      if (ring) ring.setAttribute('stroke-dasharray', '82 100');
-      if (pct) pct.textContent = '100';
-      L.classList.add('out');
-      document.body.classList.add('listo');
-      setTimeout(() => L.classList.add('gone'), 700);
-    }
-    setTimeout(close, 2000);
-  })();
-
   /* ---------- Revelado con respaldo por geometría ---------- */
   const rvEls = $$('.rv, .tl-end, #ringWrap');
   let rvPending = new Set(rvEls);

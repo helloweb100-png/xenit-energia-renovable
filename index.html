@@ -68,21 +68,6 @@
   </defs>
 </svg>
 
-<!-- CARGADOR -->
-<div id="loader" class="loader" role="status" aria-live="polite" aria-label="Cargando XENIT">
-  <div class="ld-half ld-t"></div>
-  <div class="ld-half ld-b"></div>
-  <div class="ld-halo"></div>
-  <div class="ld-core">
-    <svg class="ld-ring" viewBox="0 0 200 200" aria-hidden="true">
-      <circle cx="100" cy="100" r="88" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="2" pathLength="100" stroke-dasharray="82 100" transform="rotate(122.5 100 100)"/>
-      <circle id="ldRing" cx="100" cy="100" r="88" fill="none" stroke="#86E04B" stroke-width="3" stroke-linecap="round" pathLength="100" stroke-dasharray="0 100" transform="rotate(122.5 100 100)"/>
-    </svg>
-    <img class="ld-logo" src="assets/logo.png" width="132" height="129" alt="XENIT Energía Renovable">
-  </div>
-  <p class="ld-txt">ENERGIZANDO… <b id="ldPct">0</b> %</p>
-</div>
-
 <div class="progress" id="prog" aria-hidden="true"></div>
 
 <!-- Raíz de scroll (firma de marca) -->
@@ -128,7 +113,7 @@
     <a href="#para-quien" style="--i:2">Para quién</a>
     <a href="#proceso" style="--i:3">Proceso</a>
     <a href="#dudas" style="--i:4">Dudas</a>
-    <a href="#contacto" style="--i:5" class="menu-cta">Quiero mi propuesta</a>
+    <a href="#contacto" style="--i:5" class="menu-cta js-wa" data-wa-msg="Hola XENIT, quiero mi propuesta de ahorro. Les mando la foto de mi recibo de CFE.">Quiero mi propuesta</a>
   </nav>
 </div>
 
@@ -208,8 +193,8 @@
 <section class="ticker" aria-label="Lo que hacemos">
   <div class="tk-row tk-a" aria-hidden="true">
     <div class="tk-track">
-      <span>Energía que se convierte en raíces ✺ Inversión &amp; Energía Sólida ✺ Generación Distribuida ✺ Medidor bidireccional ✺ Paneles Canadian Solar Tier 1 ✺ Inversores Huawei ✺ </span>
-      <span>Energía que se convierte en raíces ✺ Inversión &amp; Energía Sólida ✺ Generación Distribuida ✺ Medidor bidireccional ✺ Paneles Canadian Solar Tier 1 ✺ Inversores Huawei ✺ </span>
+      <span>Energía que se convierte en raíces ✺ Inversión &amp; Energía Sólida ✺ Generación Distribuida ✺ Medidor bidireccional ✺ Aerogeneradores ✺ Mantenimiento y monitoreo ✺ </span>
+      <span>Energía que se convierte en raíces ✺ Inversión &amp; Energía Sólida ✺ Generación Distribuida ✺ Medidor bidireccional ✺ Aerogeneradores ✺ Mantenimiento y monitoreo ✺ </span>
     </div>
   </div>
   <div class="tk-row tk-b" aria-hidden="true">
@@ -320,9 +305,6 @@
         <p id="fcTxt">Convierte la energía de los paneles en corriente utilizable para tu casa, negocio o planta. Inversores Huawei, con cableado especializado para uso solar.</p>
       </div>
     </div>
-    <div class="center rv">
-      <a class="btn btn-primary btn-lg js-wa mag" href="#contacto" data-wa-msg="Hola XENIT, quiero que calculen mi sistema. Les mando la foto de mi recibo de CFE."><span>Quiero que calculen mi sistema</span><svg class="ar" aria-hidden="true"><use href="#i-arrow"/></svg></a>
-    </div>
   </div>
 </section>
 
@@ -341,11 +323,8 @@
           <h2 id="t-ing">Ingeniería sólida, a cielo abierto.</h2>
           <p class="sub">Estructura de montaje y cableado especializado para uso solar, paneles Tier 1 y obra completa. Nada improvisado.</p>
           <ul class="chips">
-            <li class="chip-mono">Inversores Huawei</li>
-            <li class="chip-mono">Paneles Canadian Solar · Tier 1</li>
             <li class="chip-mono">Albañilería y adaptación a 220V incluidas</li>
           </ul>
-          <a class="btn btn-primary btn-lg js-wa mag" href="#contacto" data-wa-msg="Hola XENIT, quiero esta instalación en mi techo. Les mando la foto de mi recibo de CFE."><span>Quiero esta instalación en mi techo</span><svg class="ar" aria-hidden="true"><use href="#i-arrow"/></svg></a>
         </div>
       </div>
     </div>
@@ -413,7 +392,7 @@
             <div class="scard-body">
               <span class="chip-mono tag">TRÁMITE CFE</span>
               <h3>Trámite integral ante CFE</h3>
-              <p>Contrato de interconexión y cambio a medidor bidireccional. Normalmente toma de 20 a 60 días hábiles.</p>
+              <p>Contrato de interconexión y cambio a medidor bidireccional.</p>
             </div>
           </li>
           <li class="scard tilt">
@@ -431,7 +410,7 @@
             <div class="scard-body">
               <span class="chip-mono tag">ISR · ART. 34</span>
               <h3>Orientación fiscal</h3>
-              <p>El equipo de generación puede deducirse al 100 % en el primer año (Art. 34, Fracción XIII, Ley del ISR).</p>
+              <p>Te orientamos sobre la deducción fiscal de tu equipo de generación.</p>
             </div>
           </li>
           <li class="scard final">
@@ -537,9 +516,6 @@
         <div class="b-c"><span class="chip-mono">TIER 1</span><h3>Equipo de primer nivel</h3><p>Inversores Huawei y paneles Canadian Solar (Tier 1).</p></div>
       </article>
     </div>
-    <div class="center rv">
-      <a class="btn btn-navy btn-lg js-wa mag" href="#contacto" data-wa-msg="Hola XENIT, quiero un sistema que se sostenga. Les mando la foto de mi recibo de CFE."><span>Quiero un sistema que se sostenga</span><svg class="ar" aria-hidden="true"><use href="#i-arrow"/></svg></a>
-    </div>
   </div>
 </section>
 
@@ -602,7 +578,6 @@
       <h2 id="t-fis" class="rv">Tu inversión puede deducirse al 100 % en el primer año.</h2>
       <p class="sub rv">El equipo de generación de energía renovable es deducible en el primer año (Art. 34, Fracción XIII, Ley del ISR) para personas físicas con actividad empresarial y personas morales.</p>
       <p class="nota rv">Calculamos el retorno neto cuando conocemos tu régimen fiscal.</p>
-      <div class="rv"><a class="btn btn-primary btn-lg js-wa mag" href="#contacto" data-wa-msg="Hola XENIT, quiero saber cuánto puedo deducir. Les mando la foto de mi recibo de CFE."><span>Quiero saber cuánto puedo deducir</span><svg class="ar" aria-hidden="true"><use href="#i-arrow"/></svg></a></div>
     </div>
   </div>
 </section>
