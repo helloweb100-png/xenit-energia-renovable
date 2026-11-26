@@ -37,27 +37,42 @@
       const send = $('#fSend'); if (send) send.style.display = 'none';
       return;
     }
-    const b = $('#waBubble');
-    if (b && !reduce) {
-      setTimeout(() => b.classList.add('on'), 4000);
-      setTimeout(() => b.classList.remove('on'), 10000);
-    }
   }
   initWA();
+
+  /* ---------- WhatsApp flotante: aparece después del hero y se aparta cuando estás en el formulario ---------- */
+  (function floatWA() {
+    const fl = $('#waFloat'), hero = $('#inicio'), con = $('#contacto'), ftr = $('.ftr'), b = $('#waBubble');
+    if (!fl || !hero || !WHATSAPP_NUMBER) return;
+    if (!('IntersectionObserver' in window)) { fl.classList.add('show'); return; }
+    let heroIn = true, conIn = false, ftrIn = false, bubbled = false;
+    function upd() {
+      const on = !heroIn;
+      fl.classList.toggle('show', on);
+      fl.classList.toggle('away', conIn || ftrIn);
+      if (on && !conIn && !ftrIn && !bubbled && b && !reduce) {
+        bubbled = true;
+        setTimeout(() => b.classList.add('on'), 1200);
+        setTimeout(() => b.classList.remove('on'), 7500);
+      }
+    }
+    new IntersectionObserver(es => { heroIn = es[0].isIntersecting; upd(); }).observe(hero);
+    if (con) new IntersectionObserver(es => { conIn = es[0].isIntersecting; upd(); }, { threshold: .1 }).observe(con);
+    if (ftr) new IntersectionObserver(es => { ftrIn = es[0].isIntersecting; upd(); }).observe(ftr);
+  })();
   const yr = $('#year'); if (yr) yr.textContent = new Date().getFullYear();
 
   /* ---------- Revelado con respaldo por geometría ---------- */
-  const rvEls = $$('.rv, .tl-end, #ringWrap');
+  const rvEls = $$('.rv');
   let rvPending = new Set(rvEls);
   function reveal(el) { el.classList.add('in'); rvPending.delete(el); if (io) io.unobserve(el); }
   let io = null;
   if ('IntersectionObserver' in window) {
     io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) reveal(e.target); }), { threshold: .15, rootMargin: '0px 0px -8% 0px' });
-    rvEls.forEach(el => { if (!el.classList.contains('tl-end')) io.observe(el); });
+    rvEls.forEach(el => io.observe(el));
   }
   function geoReveal() {
     rvPending.forEach(el => {
-      if (el.classList.contains('tl-end')) return;
       const r = el.getBoundingClientRect();
       if (r.top < vh * .95 && r.bottom > 0) reveal(el);
     });
@@ -93,7 +108,6 @@
       if (k < 1) requestAnimationFrame(step); else el.textContent = end;
     })(t0);
   }
-  watch($('#ringWrap'), () => $$('.num', $('#ringWrap')).forEach(countUp), .3);
 
   /* ---------- Menú móvil ---------- */
   (function menu() {
@@ -277,7 +291,7 @@
         if (e.key === 'ArrowRight' || e.key === 'ArrowDown') { select((cur + 1) % 3, true); tb[cur].focus(); e.preventDefault(); }
         if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') { select((cur + 2) % 3, true); tb[cur].focus(); e.preventDefault(); }
       });
-      $$('.tab-bar', t).forEach(bar => bar.addEventListener('animationend', () => { if (!box.classList.contains('manual')) select((cur + 1) % 3, false); }));
+      $$('.tab-bar', t).forEach(bar => bar.addEventListener('animationend', () => { if (!reduce && !box.classList.contains('manual')) select((cur + 1) % 3, false); }));
     });
   })();
 
@@ -352,30 +366,48 @@
     lb.addEventListener('touchend', e => { const d = e.changedTouches[0].clientX - sx; if (Math.abs(d) > 50) load(idx + (d < 0 ? 1 : -1)); }, { passive: true });
   })();
 
-  /* ---------- Celdas solares (fiscal) ---------- */
-  (function cells() {
-    const c = $('#cells'); if (!c) return;
-    const n = vw >= 1024 ? 72 : 40, f = document.createDocumentFragment();
-    for (let i = 0; i < n; i++) { const e = document.createElement('i'); e.style.setProperty('--d', (Math.random() * 6).toFixed(2) + 's'); f.appendChild(e); }
-    c.appendChild(f);
+  /* ---------- Tu ahorro: recibo que gira + deslizador ---------- */
+  (function ahorro() {
+    const rec = $('#recibo');
+    /* El recibo gira de "antes" a "después" solo mientras se ve y si no pediste reducir movimiento */
+    if (rec && !reduce && 'IntersectionObserver' in window) {
+      rec.classList.add('flip');
+      new IntersectionObserver(es => es.forEach(e => rec.classList.toggle('run', e.isIntersecting)), { threshold: .3 }).observe(rec);
+    }
+    const calc = $('#calc'), rng = $('#bim'); if (!calc || !rng) return;
+    /* Referencia del caso tipo (HTML: data-despues): lo que queda en el recibo con XENIT por bimestre */
+    const DESPUES = parseFloat(calc.dataset.despues) || 0, BIMESTRES = 6;
+    const fmt = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN', maximumFractionDigits: 0 });
+    const money = n => fmt.format(n).replace(/\s*MXN/, '');
+    function upd() {
+      const hoy = parseFloat(rng.value), bim = Math.max(0, hoy - DESPUES), anio = bim * BIMESTRES;
+      $('#bimOut').textContent = money(hoy);
+      $('#ahBim').textContent = money(bim);
+      $('#ahAnio').textContent = money(anio);
+      $('#calcEx').textContent = money(hoy) + ' − ' + money(DESPUES) + ' = ' + money(bim) + ' por bimestre · ' + money(bim) + ' × ' + BIMESTRES + ' bimestres = ' + money(anio) + ' al año';
+    }
+    rng.addEventListener('input', upd);
+    upd();
   })();
 
   /* ---------- Formulario ---------- */
   (function form() {
     const f = $('#form'); if (!f) return;
-    const msgs = { nombre: 'Escribe tu nombre.', tipo: 'Elige el tipo de inmueble.', ciudad: 'Escribe tu estado o ciudad.' };
+    const msgs = { nombre: 'Escribe tu nombre.', tipo: 'Elige casa, negocio o planta.' };
+    const val = n => ((f.elements[n] && f.elements[n].value) || '').trim();
     f.addEventListener('submit', e => {
       e.preventDefault();
-      let ok = true;
-      ['nombre', 'tipo', 'ciudad'].forEach(n => {
-        const el = f.elements[n], wrap = el.closest('.fld'), er = $('.err', wrap);
-        const bad = !el.value || (n === 'nombre' && el.value.trim().length < 2);
-        wrap.classList.toggle('bad', bad); er.textContent = bad ? msgs[n] : ''; if (bad) ok = false;
+      let ok = true, first = null;
+      [['nombre', $('#f-nombre')], ['tipo', $('#g-tipo input')]].forEach(([n, el]) => {
+        const wrap = el.closest('.fld'), er = $('.err', wrap);
+        const bad = n === 'nombre' ? val('nombre').length < 2 : !val('tipo');
+        wrap.classList.toggle('bad', bad); er.textContent = bad ? msgs[n] : '';
+        if (bad) { ok = false; first = first || el; }
       });
-      if (!ok) { const first = $('.fld.bad input, .fld.bad select', f); if (first) first.focus(); return; }
-      const g = n => (f.elements[n].value || '').trim();
-      const extra = g('mensaje') ? ' ' + g('mensaje') : '';
-      const msg = 'Hola XENIT, soy ' + g('nombre') + '. Busco energía renovable para ' + g('tipo').toLowerCase() + '. Mi tarifa: ' + g('tarifa') + '. Ubicación: ' + g('ciudad') + '.' + extra + ' Les mando la foto de mi recibo de CFE por aquí.';
+      if (!ok) { first.focus(); return; }
+      const extra = val('mensaje') ? ' ' + val('mensaje') : '';
+      const donde = val('ciudad') ? ' Ubicación: ' + val('ciudad') + '.' : '';
+      const msg = 'Hola XENIT, soy ' + val('nombre') + '. Busco energía renovable para ' + val('tipo').toLowerCase() + '. Mi tarifa: ' + val('tarifa') + '.' + donde + extra + ' Les mando la foto de mi recibo de CFE por aquí.';
       if (!WHATSAPP_NUMBER) { $('#formAlt').hidden = false; return; }
       window.open(waUrl(msg), '_blank', 'noopener');
       $('#formOk').hidden = false;
@@ -389,26 +421,12 @@
   /* ---------- Escenas de scroll (un solo bucle rAF) ---------- */
   const bar = $('#prog'), hdr = $('#hdr'), rootEl = $('.root'), rootDot = $('#rootDot'), trunk = $('#rootTrunk');
   const sun = $('#sun'), heroCopy = $('#heroCopy');
-  const cambio = $('#cambioScroll'), steps = $$('.step'), dots = $$('.dots i'), panel = $('.panel');
-  const ingS = $('#ingScroll'), ingImg = $('#ingImg'), ingOv = $('#ingOv'), ingTxt = $('#ingTxt'), ingHint = $('#ingHint');
-  const solSec = $('#soluciones'), solPin = $('#solPin'), solTrack = $('#solTrack'), solBar = $('#solBar');
-  const tl = $('#tl'), tlPath = $('#tlPath'), tlSteps = $$('.tl-step'), tlEnd = $('#tlEnd');
+  const ingS = $('#ingScroll'), ingImg = $('#ingImg'), ingOv = $('#ingOv'), ingTxt = $('#ingTxt');
+  const tl = $('#tl'), tlPath = $('#tlPath'), tlSteps = $$('.tl-step');
   const trunkLen = trunk && trunk.getTotalLength ? 1 : 1;
-  let solOn = false, solMax = 0, curStep = -1, lastY = 0, scrolled = true;
+  let lastY = 0, scrolled = true;
 
-  function setupSol() {
-    if (!solSec || !solTrack) return;
-    const on = vw >= 900 && !reduce;
-    solSec.classList.toggle('pin', on);
-    solOn = on;
-    if (on) {
-      solMax = Math.max(0, solTrack.scrollWidth - (vw - 120));
-      solPin.style.height = (solMax + vh) + 'px';
-    } else { solPin.style.height = ''; solTrack.style.transform = ''; }
-  }
-  setupSol();
-  window.addEventListener('load', setupSol);
-  window.addEventListener('resize', () => { vw = window.innerWidth; vh = window.innerHeight; setupSol(); scrolled = true; });
+  window.addEventListener('resize', () => { vw = window.innerWidth; vh = window.innerHeight; scrolled = true; });
   window.addEventListener('scroll', () => { scrolled = true; }, { passive: true });
 
   const prog = el => {
@@ -439,18 +457,6 @@
       if (sun) sun.style.setProperty('--s', (1 + clamp(y / vh, 0, 1) * .25).toFixed(3));
       if (heroCopy && !reduce) { heroCopy.style.setProperty('--sy', (-y * .22).toFixed(1) + 'px'); heroCopy.style.setProperty('--so', clamp(1 - y / (vh * .9), 0, 1).toFixed(2)); }
     }
-    /* 01 El cambio */
-    if (cambio && !reduce && cambio.getBoundingClientRect().bottom > -100 && cambio.getBoundingClientRect().top < vh + 100) {
-      const p = prog(cambio);
-      cambio.style.setProperty('--p', p.toFixed(3));
-      const s = p < .33 ? 0 : p < .66 ? 1 : 2;
-      if (s !== curStep) {
-        curStep = s;
-        steps.forEach((e, i) => e.classList.toggle('on', i === s));
-        dots.forEach((e, i) => e.classList.toggle('on', i === s));
-        if (panel) panel.classList.toggle('s3', s === 2);
-      }
-    }
     /* 03 Ingeniería: foto que se expande */
     if (ingS && ingImg && !reduce) {
       const r = ingS.getBoundingClientRect();
@@ -463,15 +469,7 @@
         const im = ingImg.firstElementChild; if (im) im.style.transform = 'scale(' + lerp(1.15, 1, k).toFixed(3) + ')';
         if (ingOv) ingOv.style.opacity = (k * .95).toFixed(2);
         if (ingTxt) ingTxt.classList.toggle('show', p > .6);
-        if (ingHint) ingHint.classList.toggle('off', p > .2);
       }
-    }
-    /* 04 Soluciones: scroll horizontal */
-    if (solOn && solPin) {
-      const r = solPin.getBoundingClientRect(), total = r.height - vh;
-      const p = total > 0 ? clamp(-r.top / total, 0, 1) : 0;
-      solTrack.style.transform = 'translate3d(' + (-p * solMax).toFixed(1) + 'px,0,0)';
-      if (solBar) solBar.style.transform = 'scaleX(' + p.toFixed(3) + ')';
     }
     /* 07 Proceso: raíz y nodos */
     if (tl) {
@@ -483,8 +481,6 @@
           const n = $('.tl-node', s).getBoundingClientRect();
           if (n.top < vh * .72) s.classList.add('lit');
         });
-        if (tlEnd && p > .93) tlEnd.classList.add('lit');
-        if (p > .93 && tlEnd) tlEnd.classList.add('lit');
       }
     }
   }
@@ -509,5 +505,5 @@
   requestAnimationFrame(frame);
 
   /* Respaldos finales: si algo quedó sin resolver, que no haya contenido oculto */
-  setTimeout(() => { geoReveal(); setupSol(); scenes(); }, 2500);
+  setTimeout(() => { geoReveal(); scenes(); }, 2500);
 })();
